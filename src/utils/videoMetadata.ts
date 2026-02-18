@@ -38,10 +38,7 @@ export async function extractVideoMetadata(file: File): Promise<VideoMetadata> {
 }
 
 // Note: Actual video metadata removal would require ffmpeg.wasm
-// For MVP, we'll just indicate that this feature requires ffmpeg.wasm
-export async function removeVideoMetadata(file: File): Promise<Blob> {
-  // This is a placeholder - actual implementation would use ffmpeg.wasm
-  // For now, return the original file
-  console.warn('Video metadata removal requires ffmpeg.wasm (not implemented in MVP)')
-  return file
+// For MVP, we indicate this feature is not available
+export async function removeVideoMetadata(_file: File): Promise<Blob> {
+  throw new Error('Video metadata removal requires ffmpeg.wasm and is not available in this version. This feature is planned for a future update.')
 }

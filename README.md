@@ -37,7 +37,7 @@ A privacy-focused web application for removing metadata from photos and videos. 
 
 ### Prerequisites
 
-- Node.js 16+ and npm
+- Node.js 20+ and npm
 
 ### Installation
 

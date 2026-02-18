@@ -87,11 +87,6 @@ export async function removeSelectedExif(
           return removeAllExif(file, quality).then(resolve).catch(reject)
         }
         
-        // Extract existing EXIF
-        piexif.load(dataUrl)
-        
-        // Create new EXIF with only kept fields
-        // This is a simplified version - in a real app, you'd need to map field names to IFD tags
         // For now, if no fields are kept, remove all
         if (keepFields.length === 0) {
           const exifBytes = piexif.dump({})
