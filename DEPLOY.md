@@ -1,8 +1,41 @@
 # Deployment Guide
 
-## Quick Deploy Options
+## Automatic Deployment (Recommended)
 
-### Option 1: GitHub Pages
+### GitHub Actions + GitHub Pages
+
+This repository is configured for **automatic deployment** to GitHub Pages with a custom domain.
+
+**How it works:**
+- Every push to `main` branch triggers automatic deployment
+- GitHub Actions builds the project and deploys to GitHub Pages
+- Custom domain: `noexif.littlechin.tw`
+
+**Setup (one-time):**
+
+1. **Enable GitHub Pages:**
+   - Go to repository Settings → Pages
+   - Source: **GitHub Actions**
+
+2. **Configure DNS (for custom domain):**
+   - Add a CNAME record pointing to `littlechintw.github.io`
+   - The CNAME file is automatically included in deployment
+
+3. **First Deployment:**
+   - Push to `main` branch
+   - GitHub Actions will automatically build and deploy
+   - Check the Actions tab for deployment status
+
+**Workflow details:**
+- Node.js 20
+- Runs `npm ci` to install dependencies
+- Runs `npm run build` to build the project
+- Deploys `dist/` folder to GitHub Pages
+- Location: `.github/workflows/deploy.yml`
+
+## Manual Deploy Options
+
+### Option 1: GitHub Pages (Manual)
 
 1. Build the project:
 ```bash
@@ -11,11 +44,9 @@ npm run build
 
 2. The `dist/` directory contains your production files
 
-3. Deploy to GitHub Pages:
-   - Go to repository Settings → Pages
-   - Source: Deploy from a branch
-   - Branch: Create a `gh-pages` branch with contents of `dist/`
-   - Or use GitHub Actions for automatic deployment
+3. Deploy to GitHub Pages manually:
+   - Create a `gh-pages` branch with contents of `dist/`
+   - Or use the automatic GitHub Actions workflow (recommended)
 
 ### Option 2: Netlify
 
