@@ -34,8 +34,9 @@ describe('FileUploader.vue', () => {
     
     expect(wrapper.emitted()).toHaveProperty('file-selected')
     const events = wrapper.emitted('file-selected')
-    if (events && events.length > 0) {
-      expect(events[0][0]).toBe(file)
+    if (events && events[0]) {
+      const payload = events[0][0] as File
+      expect(payload).toBe(file)
     }
   })
 

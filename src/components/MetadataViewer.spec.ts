@@ -85,8 +85,11 @@ describe('MetadataViewer.vue', () => {
     expect(wrapper.emitted()).toHaveProperty('selectionChanged')
     const events = wrapper.emitted('selectionChanged')
     if (events && events.length > 0) {
-      const lastEvent = events[events.length - 1][0] as string[]
-      expect(lastEvent).toContain('Make')
+      const event = events[events.length - 1]
+      if (event) {
+        const lastEvent = event[0] as string[]
+        expect(lastEvent).toContain('Make')
+      }
     }
   })
 })

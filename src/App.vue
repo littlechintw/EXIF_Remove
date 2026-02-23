@@ -365,8 +365,7 @@ const handleKeepSelected = async () => {
           </button>
         </div>
 
-        <!-- Image Editor -->
-        <div v-if="showEditor" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div v-if="showEditor && editingImageUrl" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <ImageEditor
             :image-url="editingImageUrl"
             :quality="quality"

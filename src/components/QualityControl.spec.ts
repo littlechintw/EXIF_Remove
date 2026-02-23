@@ -20,9 +20,12 @@ describe('QualityControl.vue', () => {
     expect(wrapper.emitted()).toHaveProperty('qualityChanged')
     const events = wrapper.emitted('qualityChanged')
     if (events && events.length > 0) {
-      // Find the last event
-      const lastEvent = events[events.length - 1][0]
-      expect(lastEvent).toBe(0.8)
+      const event = events[events.length - 1]
+      if (event) {
+        // Find the last event
+        const lastEvent = event[0]
+        expect(lastEvent).toBe(0.8)
+      }
     }
   })
 })

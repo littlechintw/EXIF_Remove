@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 
@@ -48,23 +48,25 @@ const initCropper = (url: string) => {
   });
 };
 
-const addToHistory = () => {
-  if (!cropper) return;
-  const canvas = cropper.getCroppedCanvas({
-    imageSmoothingEnabled: true,
-    imageSmoothingQuality: 'high',
-  });
-  if (canvas) {
-    const dataUrl = canvas.toDataURL('image/jpeg', internalQuality);
-    history.value.push(dataUrl);
-  }
-};
+// const addToHistory = () => {
+//   if (!cropper) return;
+//   const canvas = cropper.getCroppedCanvas({
+//     imageSmoothingEnabled: true,
+//     imageSmoothingQuality: 'high',
+//   });
+//   if (canvas) {
+//     const dataUrl = canvas.toDataURL('image/jpeg', internalQuality);
+//     history.value.push(dataUrl);
+//   }
+// };
 
 const undo = () => {
   if (history.value.length > 1) {
     history.value.pop(); // Remove current state
     const previousState = history.value[history.value.length - 1];
-    cropper?.replace(previousState);
+    if (previousState) {
+      cropper?.replace(previousState);
+    }
     
     // Reset modes
     isMosaicMode.value = false;
