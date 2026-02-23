@@ -53,7 +53,7 @@ const TAG_NAMES: Record<number, string> = {
   29: 'GPSDateStamp',
 }
 
-function convertPiexifToFlat(piexifData: any): ExifData {
+export function convertPiexifToFlat(piexifData: any): ExifData {
   const result: ExifData = {}
   
   // Process all IFD sections
@@ -209,7 +209,7 @@ export function formatExifValue(value: any): string {
   return String(value)
 }
 
-function dataURLtoBlob(dataurl: string): Blob {
+export function dataURLtoBlob(dataurl: string): Blob {
   const [header, data] = dataurl.split(',')
   if (!header || !data) return new Blob([])
   

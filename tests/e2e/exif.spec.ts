@@ -92,6 +92,9 @@ test.describe('EXIF Remover', () => {
     // Upload the file
     await page.setInputFiles('input[type="file"]', testJpegPath);
 
+    // Wait for metadata to load
+    await expect(page.locator('text=TestMake')).toBeVisible();
+
     await page.click('button:has-text("Deselect All")');
     await page.click('label:has-text("Make:")');
 
@@ -109,6 +112,36 @@ test.describe('EXIF Remover', () => {
     const exifAfter = piexif.load(downloadedData);
     expect(exifAfter['0th'][piexif.ImageIFD.Make]).toBe('TestMake');
     expect(exifAfter['0th'][piexif.ImageIFD.Model]).toBeUndefined();
+    fs.unlinkSync(downloadPath);
+  });
+
+  test('JPG: should keep multiple selected EXIF fields', async ({ page }) => {
+    await page.goto('/');
+
+    await page.setInputFiles('input[type="file"]', testJpegPath);
+
+    // Wait for metadata to load
+    await expect(page.locator('text=TestMake')).toBeVisible();
+
+    await page.click('button:has-text("Deselect All")');
+    await page.click('label:has-text("Make:")');
+    await page.click('label:has-text("Model:")');
+
+    await page.click('button:has-text("Keep Selected")');
+    const downloadButton = page.locator('button:has-text("Download Processed File")');
+    await expect(downloadButton).toBeVisible();
+
+    const downloadPromise = page.waitForEvent('download');
+    await downloadButton.click();
+    const download = await downloadPromise;
+    const downloadPath = path.join(__dirname, 'downloaded-jpg-multiple.jpg');
+    await download.saveAs(downloadPath);
+
+    const downloadedData = fs.readFileSync(downloadPath).toString('binary');
+    const exifAfter = piexif.load(downloadedData);
+    expect(exifAfter['0th'][piexif.ImageIFD.Make]).toBe('TestMake');
+    expect(exifAfter['0th'][piexif.ImageIFD.Model]).toBe('TestModel');
+    expect(exifAfter['Exif'][piexif.ExifIFD.DateTimeOriginal]).toBeUndefined();
     fs.unlinkSync(downloadPath);
   });
 
