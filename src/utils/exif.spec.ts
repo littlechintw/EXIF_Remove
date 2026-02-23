@@ -1,6 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import * as exifUtils from './exif'
-import * as piexif from 'piexifjs'
 
 describe('exifUtils', () => {
   it('should format exif values correctly', () => {
