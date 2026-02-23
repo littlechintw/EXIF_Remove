@@ -1,4 +1,4 @@
-import piexif from 'piexifjs'
+import * as piexif from 'piexifjs'
 
 export interface ExifData {
   [key: string]: any
@@ -155,27 +155,45 @@ export async function removeSelectedExif(
       try {
         const dataUrl = e.target?.result as string
         
-        if (!dataUrl.startsWith('data:image/jpeg')) {
+        if (!dataUrl.startsWith('data:image/jpeg') && !dataUrl.startsWith('data:image/jpg')) {
           // For non-JPEG, just remove all EXIF via canvas
           return removeAllExif(file, quality).then(resolve).catch(reject)
         }
         
-        // For now, if no fields are kept, remove all
-        if (keepFields.length === 0) {
-          const exifBytes = piexif.dump({})
-          const newDataUrl = piexif.insert(exifBytes, dataUrl)
-          
-          // Convert back to blob
-          const response = await fetch(newDataUrl)
-          const blob = await response.blob()
-          resolve(blob)
-        } else {
-          // For selective keeping, we'd need more complex logic
-          // For MVP, fall back to remove all
-          removeAllExif(file, quality).then(resolve).catch(reject)
+        const originalPiexifData = piexif.load(dataUrl)
+        const newPiexifData: any = {
+          '0th': {},
+          'Exif': {},
+          'GPS': {},
+          'Interop': {},
+          '1st': {},
+          'thumbnail': originalPiexifData['thumbnail']
         }
+        
+        const sections = ['0th', 'Exif', 'GPS', 'Interop', '1st']
+        
+        for (const section of sections) {
+          if (originalPiexifData[section]) {
+            for (const [tagId, value] of Object.entries(originalPiexifData[section])) {
+              const tagName = TAG_NAMES[Number(tagId)] || `${section}_${tagId}`
+              if (keepFields.includes(tagName)) {
+                newPiexifData[section][tagId] = value
+              }
+            }
+          }
+        }
+        
+        const exifBytes = piexif.dump(newPiexifData)
+        const newDataUrl = piexif.insert(exifBytes, dataUrl)
+        
+        // Convert to blob
+        const res = await fetch(newDataUrl)
+        const blob = await res.blob()
+        resolve(blob)
       } catch (error) {
-        reject(error)
+        console.error('Error in selective removal:', error)
+        // Fallback to remove all if error
+        removeAllExif(file, quality).then(resolve).catch(reject)
       }
     }
     
