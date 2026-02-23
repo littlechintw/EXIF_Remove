@@ -1,4 +1,4 @@
-import * as piexif from 'piexifjs'
+import piexif from 'piexifjs'
 
 export interface ExifData {
   [key: string]: any
