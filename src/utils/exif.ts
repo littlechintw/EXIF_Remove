@@ -80,8 +80,9 @@ export async function extractExif(file: File): Promise<ExifData> {
         const dataUrl = e.target?.result as string
         
         // piexif.load expects JPEG data
-        if (!dataUrl.startsWith('data:image/jpeg') && !dataUrl.startsWith('data:image/jpg')) {
-          // For non-JPEG images, return empty metadata
+        const isJpeg = /^data:image\/jpe?g/i.test(dataUrl)
+        if (!isJpeg) {
+          // For non-JPEG images, return empty metadata (piexifjs only supports JPEG)
           resolve({})
           return
         }
@@ -91,7 +92,7 @@ export async function extractExif(file: File): Promise<ExifData> {
         resolve(flatData)
       } catch (error) {
         // If no EXIF data found or error reading, return empty object
-        console.warn('No EXIF data found:', error)
+        console.warn('Metadata extraction note:', error)
         resolve({})
       }
     }
@@ -206,4 +207,72 @@ export function formatExifValue(value: any): string {
   if (value === null || value === undefined) return 'N/A'
   if (typeof value === 'object') return JSON.stringify(value)
   return String(value)
+}
+
+function dataURLtoBlob(dataurl: string): Blob {
+  const [header, data] = dataurl.split(',')
+  if (!header || !data) return new Blob([])
+  
+  const mimeMatch = header.match(/:(.*?);/)
+  const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg'
+  
+  const bstr = atob(data)
+  let n = bstr.length
+  const u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new Blob([u8arr], { type: mime })
+}
+
+export async function copyExif(sourceFile: File, targetBlob: Blob): Promise<Blob> {
+  const isJpeg = (type: string) => /image\/jpe?g/i.test(type)
+  
+  if (!isJpeg(sourceFile.type) || !isJpeg(targetBlob.type)) {
+    return targetBlob
+  }
+
+  return new Promise((resolve) => {
+    const sourceReader = new FileReader()
+    sourceReader.onload = (e) => {
+      try {
+        const sourceDataUrl = e.target?.result as string
+        const targetReader = new FileReader()
+        targetReader.onload = (e2) => {
+          try {
+            const targetDataUrl = e2.target?.result as string
+            
+            let exifData;
+            try {
+              exifData = piexif.load(sourceDataUrl)
+            } catch (e) {
+              resolve(targetBlob)
+              return
+            }
+            
+            if (!exifData || Object.keys(exifData).length === 0) {
+              resolve(targetBlob)
+              return
+            }
+
+            const exifBytes = piexif.dump(exifData)
+            if (exifBytes && exifBytes.length > 50) { 
+              const newDataUrl = piexif.insert(exifBytes, targetDataUrl)
+              resolve(dataURLtoBlob(newDataUrl))
+            } else {
+              resolve(targetBlob)
+            }
+          } catch (err) {
+            console.warn('Failed to insert EXIF:', err)
+            resolve(targetBlob)
+          }
+        }
+        targetReader.readAsDataURL(targetBlob)
+      } catch (err) {
+        console.warn('Failed to load EXIF:', err)
+        resolve(targetBlob)
+      }
+    }
+    sourceReader.readAsDataURL(sourceFile)
+  })
 }

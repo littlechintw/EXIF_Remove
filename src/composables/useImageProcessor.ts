@@ -17,6 +17,7 @@ export function useImageProcessor() {
       imageFile.value = file
       originalSize.value = file.size
       imagePreview.value = URL.createObjectURL(file)
+      processedBlob.value = null // Clear previous results when loading a new/edited file
       
       // Extract EXIF data
       const exif = await extractExif(file)

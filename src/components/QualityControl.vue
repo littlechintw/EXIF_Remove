@@ -46,11 +46,11 @@ const emit = defineEmits<{
   qualityChanged: [quality: number]
 }>()
 
-const quality = ref(92)
+const quality = ref(90)
 
 watch(quality, (newQuality) => {
   emit('qualityChanged', newQuality / 100)
-})
+}, { immediate: true })
 </script>
 
 <style scoped>

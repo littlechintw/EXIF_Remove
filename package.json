@@ -11,12 +11,16 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
+    "cropperjs": "^1.5.13",
     "piexifjs": "^1.0.6",
     "vue": "^3.5.25"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4.2.0",
+    "@types/cropperjs": "^1.1.5",
     "@types/node": "^24.10.13",
     "@vitejs/plugin-vue": "^6.0.2",
     "@vitest/ui": "^4.0.18",
@@ -26,9 +30,9 @@
     "jsdom": "^28.1.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.2.0",
-    "typescript": "~5.9.3",
-    "vite": "^7.3.1",
-    "vitest": "^4.0.18",
-    "vue-tsc": "^3.1.5"
+    "typescript": "~5.7.3",
+    "vite": "^6.1.1",
+    "vitest": "^3.0.6",
+    "vue-tsc": "^2.2.4"
   }
 }

@@ -10,7 +10,7 @@
       <input
         ref="fileInput"
         type="file"
-        accept="image/jpeg,image/png,image/heic,video/mp4"
+        :accept="accept"
         class="hidden"
         @change="handleFileChange"
       />
@@ -43,63 +43,54 @@
         </div>
         
         <p class="text-xs text-gray-500 dark:text-gray-400">
-          JPEG, PNG, HEIC or MP4 files
+          {{ helpText }}
         </p>
-      </div>
-    </div>
-    
-    <div v-if="fileInfo" class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-      <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">File Info</h3>
-      <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-        <p><span class="font-medium">Name:</span> {{ fileInfo.name }}</p>
-        <p><span class="font-medium">Size:</span> {{ formatFileSize(fileInfo.size) }}</p>
-        <p><span class="font-medium">Type:</span> {{ fileInfo.type }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
+
+const props = defineProps<{
+  accept: string;
+  helpText: string;
+}>();
 
 const emit = defineEmits<{
-  fileSelected: [file: File]
-}>()
+  (e: 'file-selected', file: File): void;
+}>();
 
-const fileInput = ref<HTMLInputElement>()
-const isDragging = ref(false)
-const fileInfo = ref<{ name: string; size: number; type: string } | null>(null)
+const fileInput = ref<HTMLInputElement | null>(null);
+const isDragging = ref(false);
 
 const handleFileChange = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
   if (file) {
-    processFile(file)
+    emit('file-selected', file);
   }
-}
+};
 
 const handleDrop = (event: DragEvent) => {
-  isDragging.value = false
-  const file = event.dataTransfer?.files[0]
+  isDragging.value = false;
+  const file = event.dataTransfer?.files[0];
   if (file) {
-    processFile(file)
-  }
-}
+    // Check if file matches accept pattern
+    const acceptedTypes = props.accept.split(',').map(t => t.trim());
+    const fileType = file.type;
+    
+    const isAccepted = acceptedTypes.some(type => {
+      if (type.endsWith('/*')) {
+        return fileType.startsWith(type.replace('/*', ''));
+      }
+      return type === fileType;
+    });
 
-const processFile = (file: File) => {
-  fileInfo.value = {
-    name: file.name,
-    size: file.size,
-    type: file.type,
+    if (isAccepted) {
+      emit('file-selected', file);
+    }
   }
-  emit('fileSelected', file)
-}
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
-}
+};
 </script>

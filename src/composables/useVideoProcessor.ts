@@ -12,6 +12,7 @@ export function useVideoProcessor() {
     try {
       error.value = ''
       videoFile.value = file
+      processedBlob.value = null
       
       // Extract video metadata
       const metadata = await extractVideoMetadata(file)
